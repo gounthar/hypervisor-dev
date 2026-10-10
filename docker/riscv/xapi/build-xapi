@@ -1,6 +1,6 @@
 #!/bin/sh
 # Build xapi, xe, gencert, squeezed, v6d, xcp-networkd, xcp-rrdd and its
-# plugins, xenopsd-xc, xenopsd-cli and forkexecd (xenopsd spawns xenguest through it) from
+# plugins, wsproxy, xenopsd-xc, xenopsd-cli and forkexecd (xenopsd spawns xenguest through it) from
 # /build/xen-api against the Xen tree mounted at /build/xen (tools already
 # built by xen-riscv64-trixie).
 set -e
@@ -62,7 +62,8 @@ dune build --profile=release \
     ocaml/xcp-rrdd/bin/rrdp-cpu/rrdp_cpu.exe \
     ocaml/xcp-rrdd/bin/rrdp-squeezed/rrdp_squeezed.exe \
     ocaml/xcp-rrdd/bin/rrdp-netdev/rrdp_netdev.exe \
-    ocaml/xcp-rrdd/bin/rrdp-iostat/rrdp_iostat.exe
+    ocaml/xcp-rrdd/bin/rrdp-iostat/rrdp_iostat.exe \
+    ocaml/wsproxy/cli/wsproxy.exe
 # forkexecd spawns everything through this C helper, not built by dune
 make -C ocaml/forkexecd/helper vfork_helper
 
@@ -83,6 +84,8 @@ install -s -m 755 _build/default/ocaml/xcp-rrdd/bin/rrdd/xcp_rrdd.exe $OUT/xcp-r
 for p in cpu squeezed netdev iostat; do
     install -s -m 755 _build/default/ocaml/xcp-rrdd/bin/rrdp-$p/rrdp_$p.exe $OUT/xcp-rrdd-$p
 done
+# dom0 console for XO, with vncterm and sockexec from docker/riscv/console
+install -s -m 755 _build/default/ocaml/wsproxy/cli/wsproxy.exe $OUT/wsproxy
 # Config files xapi requires at start-up
 install -m 644 scripts/pool.conf $OUT/pool.conf
 install -m 644 scripts/db.conf.skel $OUT/db.conf
