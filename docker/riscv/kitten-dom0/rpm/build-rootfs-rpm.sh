@@ -176,6 +176,23 @@ if [ ${#missing[@]} -gt 0 ]; then
   exit 3
 fi
 
+if [ "$LAYOUT" = gpt ]; then
+  log "U-Boot boot script"
+  # boot.cmd loads these two stable names: the xen-hypervisor and
+  # kernel-xcpng-riscv64 RPMs that ship them must be in /in/rpms
+  for f in xen.uimg vmlinuz-xcpng; do
+    [ -e "$R/boot/$f" ] || {
+      echo "Error: /boot/$f not found, DISK_LAYOUT=gpt needs it" >&2
+      exit 1
+    }
+  done
+  # The same file as mkimage -T script: Kitten has mkimage (uboot-tools)
+  # only in its devel repository
+  python3 "$RD/boot/mkbootscr.py" -n "Kitten dom0" "$RD/boot/boot.cmd" "$R/boot/boot.scr"
+  # Before the site overlay, which may bring its own command lines
+  install -m 644 "$RD/boot/xen-cmdline.txt" "$R/boot/xen-cmdline.txt"
+fi
+
 if [ -d "$IN/overlay" ]; then
   log "site overlay"
   # Owned by root whoever built the overlay, modes kept (helpers stay
