@@ -8,8 +8,7 @@
 # when it exists ("name=value" lines, read with env import -t). Edit that
 # file, not this script; without it the defaults boot.
 # Same layout as the lab's QEMU guest-loader setup: dom0 kernel as a
-# /chosen multiboot module, Xen command line in /chosen/bootargs, PCI
-# node removed (a QEMU virt node: another board needs its own).
+# /chosen multiboot module, Xen command line in /chosen/bootargs.
 # Load addresses come from the board's U-Boot environment. xen.uimg is a
 # kernel_noload image, run in place: loading it 0x40 below kernel_addr_r
 # puts Xen itself on kernel_addr_r, which must be 4 KiB aligned.
@@ -48,7 +47,6 @@ else
   fdt move ${fdtcontroladdr} ${fdt_addr_r} 0x20000
 fi
 fdt resize 4096
-fdt rm /soc/pci@30000000
 fdt set /chosen "#address-cells" <2>
 fdt set /chosen "#size-cells" <2>
 fdt mknode /chosen module
